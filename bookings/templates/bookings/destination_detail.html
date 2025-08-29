@@ -1,0 +1,76 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}{{ destination.name }} - TravelEase{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Destination Details -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    {% if destination.image %}
+                        <img src="{{ destination.image.url }}" class="card-img-top" alt="{{ destination.name }}" style="height: 300px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="fas fa-map-marker-alt text-white" style="font-size: 4rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h1 class="card-title">{{ destination.name }}</h1>
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-map-marker-alt"></i> {{ destination.city }}, {{ destination.country }}
+                        </p>
+                        
+                        <h5>About {{ destination.name }}</h5>
+                        <p class="card-text">{{ destination.description }}</p>
+                        
+                        <div class="mt-4">
+                            <a href="{% url 'bookings:package_list' %}?destination={{ destination.name }}" class="btn btn-primary">
+                                <i class="fas fa-search"></i> View Packages
+                            </a>
+                            <a href="{% url 'bookings:destination_list' %}" class="btn btn-outline-secondary ms-2">
+                                <i class="fas fa-arrow-left"></i> Back to Destinations
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Available Packages -->
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-plane"></i> Available Packages</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if packages %}
+                            {% for package in packages %}
+                            <div class="border-bottom pb-3 mb-3">
+                                <h6 class="mb-1">{{ package.name }}</h6>
+                                <p class="text-muted mb-2">{{ package.duration_days }} days • ${{ package.price }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="badge bg-primary">{{ package.get_package_type_display }}</span>
+                                    <a href="{% url 'bookings:package_detail' package.id %}" class="btn btn-sm btn-outline-primary">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            <div class="text-center">
+                                <a href="{% url 'bookings:package_list' %}?destination={{ destination.name }}" class="btn btn-primary">
+                                    View All Packages
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No packages available for this destination at the moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Travel Packages - TravelEase{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-4">Explore Travel Packages</h1>
+                <p class="lead mb-4">Find your perfect adventure from our curated collection of travel packages</p>
+            </div>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="search-form">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            {{ search_form.destination }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.package_type }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.min_price }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ search_form.max_price }}
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-light w-100">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Packages Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="fw-bold">Available Packages</h2>
+                    <p class="text-muted mb-0">{{ total_packages }} packages found</p>
+                </div>
+            </div>
+        </div>
+        
+        {% if page_obj %}
+        <div class="row">
+            {% for package in page_obj %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card package-card card-hover h-100">
+                    {% if package.destination.image %}
+                        <img src="{{ package.destination.image.url }}" class="card-img-top" alt="{{ package.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-plane text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ package.name }}</h5>
+                            <span class="badge bg-primary">{{ package.get_package_type_display }}</span>
+                        </div>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ package.destination.name }}
+                        </p>
+                        <p class="card-text">{{ package.description|truncatewords:20 }}</p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <small class="text-muted">Duration</small>
+                                <div class="fw-bold">{{ package.duration_days }} days</div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Price</small>
+                                <div class="fw-bold text-primary">${{ package.price }}</div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Available</small>
+                                <div class="fw-bold">{{ package.available_seats }} seats</div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">Departure: {{ package.departure_date }}</small><br>
+                            <small class="text-muted">Return: {{ package.return_date }}</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">Includes:</small>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                {% if package.includes_flight %}
+                                    <span class="badge bg-success">Flight</span>
+                                {% endif %}
+                                {% if package.includes_hotel %}
+                                    <span class="badge bg-info">Hotel</span>
+                                {% endif %}
+                                {% if package.includes_meals %}
+                                    <span class="badge bg-warning">Meals</span>
+                                {% endif %}
+                                {% if package.includes_transport %}
+                                    <span class="badge bg-secondary">Transport</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'bookings:package_detail' package.id %}" class="btn btn-outline-primary">
+                                View Details
+                            </a>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'bookings:create_booking' package.id %}" class="btn btn-primary">
+                                    Book Now
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-primary">
+                                    Login to Book
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Package pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.destination %}&destination={{ request.GET.destination }}{% endif %}{% if request.GET.package_type %}&package_type={{ request.GET.package_type }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.destination %}&destination={{ request.GET.destination }}{% endif %}{% if request.GET.package_type %}&package_type={{ request.GET.package_type }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.destination %}&destination={{ request.GET.destination }}{% endif %}{% if request.GET.package_type %}&package_type={{ request.GET.package_type }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.destination %}&destination={{ request.GET.destination }}{% endif %}{% if request.GET.package_type %}&package_type={{ request.GET.package_type }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.destination %}&destination={{ request.GET.destination }}{% endif %}{% if request.GET.package_type %}&package_type={{ request.GET.package_type }}{% endif %}{% if request.GET.min_price %}&min_price={{ request.GET.min_price }}{% endif %}{% if request.GET.max_price %}&max_price={{ request.GET.max_price }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search text-muted" style="font-size: 4rem;"></i>
+            <h3 class="mt-3">No packages found</h3>
+            <p class="text-muted">Try adjusting your search criteria or browse all destinations.</p>
+            <a href="{% url 'bookings:destination_list' %}" class="btn btn-primary">
+                Browse Destinations
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

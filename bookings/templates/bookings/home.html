@@ -1,0 +1,187 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}TravelEase - Your Journey Begins Here{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Discover Your Perfect Adventure</h1>
+                <p class="lead mb-4">Explore breathtaking destinations, create unforgettable memories, and experience the world like never before with TravelEase.</p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'bookings:package_list' %}" class="btn btn-light btn-lg">
+                        <i class="fas fa-search"></i> Explore Packages
+                    </a>
+                    <a href="{% url 'bookings:destination_list' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-map-marked-alt"></i> View Destinations
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-plane-departure" style="font-size: 200px; opacity: 0.3;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Destinations -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold">Popular Destinations</h2>
+                <p class="text-muted">Discover the most sought-after travel destinations</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for destination in featured_destinations %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card package-card card-hover h-100">
+                    {% if destination.image %}
+                        <img src="{{ destination.image.url }}" class="card-img-top" alt="{{ destination.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-map-marker-alt text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ destination.name }}</h5>
+                        <p class="card-text text-muted">{{ destination.city }}, {{ destination.country }}</p>
+                        <p class="card-text">{{ destination.description|truncatewords:20 }}</p>
+                        <a href="{% url 'bookings:destination_detail' destination.id %}" class="btn btn-primary">
+                            Explore <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No destinations available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Packages -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold">Featured Travel Packages</h2>
+                <p class="text-muted">Handpicked packages for your next adventure</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for package in featured_packages %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card package-card card-hover h-100">
+                    {% if package.destination.image %}
+                        <img src="{{ package.destination.image.url }}" class="card-img-top" alt="{{ package.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-plane text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ package.name }}</h5>
+                            <span class="badge bg-primary">{{ package.get_package_type_display }}</span>
+                        </div>
+                        <p class="card-text text-muted">{{ package.destination.name }}</p>
+                        <p class="card-text">{{ package.description|truncatewords:15 }}</p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <small class="text-muted">Duration</small>
+                                <div class="fw-bold">{{ package.duration_days }} days</div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Price</small>
+                                <div class="fw-bold text-primary">${{ package.price }}</div>
+                            </div>
+                            <div class="col-4">
+                                <small class="text-muted">Available</small>
+                                <div class="fw-bold">{{ package.available_seats }} seats</div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'bookings:package_detail' package.id %}" class="btn btn-outline-primary">
+                                View Details
+                            </a>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'bookings:create_booking' package.id %}" class="btn btn-primary">
+                                    Book Now
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-primary">
+                                    Login to Book
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No packages available at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'bookings:package_list' %}" class="btn btn-primary btn-lg">
+                View All Packages <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold">Why Choose TravelEase?</h2>
+                <p class="text-muted">We make your travel dreams come true</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-3 col-md-6 mb-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shield-alt text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5>Safe & Secure</h5>
+                <p class="text-muted">Your safety and security are our top priorities</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-dollar-sign text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5>Best Prices</h5>
+                <p class="text-muted">Competitive prices and exclusive deals</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-headset text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5>24/7 Support</h5>
+                <p class="text-muted">Round-the-clock customer support</p>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-star text-primary" style="font-size: 3rem;"></i>
+                </div>
+                <h5>Premium Experience</h5>
+                <p class="text-muted">Curated experiences for unforgettable memories</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

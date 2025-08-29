@@ -1,0 +1,163 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}{{ package.name }} - TravelEase{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Package Details -->
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    {% if package.destination.image %}
+                        <img src="{{ package.destination.image.url }}" class="card-img-top" alt="{{ package.name }}" style="height: 300px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <i class="fas fa-plane text-white" style="font-size: 4rem;"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h1 class="card-title">{{ package.name }}</h1>
+                            <span class="badge bg-primary fs-6">{{ package.get_package_type_display }}</span>
+                        </div>
+                        
+                        <p class="text-muted mb-3">
+                            <i class="fas fa-map-marker-alt"></i> {{ package.destination.name }}, {{ package.destination.city }}, {{ package.destination.country }}
+                        </p>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-3 text-center">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-calendar text-primary mb-2" style="font-size: 1.5rem;"></i>
+                                    <div class="fw-bold">{{ package.duration_days }} Days</div>
+                                    <small class="text-muted">Duration</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-dollar-sign text-success mb-2" style="font-size: 1.5rem;"></i>
+                                    <div class="fw-bold">${{ package.price }}</div>
+                                    <small class="text-muted">Per Person</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-users text-info mb-2" style="font-size: 1.5rem;"></i>
+                                    <div class="fw-bold">{{ package.available_seats }}</div>
+                                    <small class="text-muted">Available Seats</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="border rounded p-3">
+                                    <i class="fas fa-plane-departure text-warning mb-2" style="font-size: 1.5rem;"></i>
+                                    <div class="fw-bold">{{ package.departure_date }}</div>
+                                    <small class="text-muted">Departure</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5>Package Description</h5>
+                        <p class="card-text">{{ package.description }}</p>
+                        
+                        <h5 class="mt-4">What's Included</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    {% if package.includes_flight %}
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Flight tickets</li>
+                                    {% endif %}
+                                    {% if package.includes_hotel %}
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Hotel accommodation</li>
+                                    {% endif %}
+                                    {% if package.includes_meals %}
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Meals included</li>
+                                    {% endif %}
+                                    {% if package.includes_transport %}
+                                        <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Local transportation</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mt-4">Travel Dates</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Departure:</strong> {{ package.departure_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Return:</strong> {{ package.return_date }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'bookings:create_booking' package.id %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-calendar-plus"></i> Book This Package
+                                </a>
+                            {% else %}
+                                <a href="{% url 'login' %}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-sign-in-alt"></i> Login to Book
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'bookings:package_list' %}" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="fas fa-arrow-left"></i> Back to Packages
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Destination Info -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-map-marked-alt"></i> Destination Info</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>{{ package.destination.name }}</h6>
+                        <p class="text-muted">{{ package.destination.city }}, {{ package.destination.country }}</p>
+                        <p>{{ package.destination.description|truncatewords:30 }}</p>
+                        <a href="{% url 'bookings:destination_detail' package.destination.id %}" class="btn btn-outline-primary btn-sm">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Related Packages -->
+                {% if related_packages %}
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-plane"></i> Related Packages</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for related in related_packages %}
+                        <div class="d-flex mb-3">
+                            <div class="flex-shrink-0">
+                                {% if related.destination.image %}
+                                    <img src="{{ related.destination.image.url }}" alt="{{ related.name }}" style="width: 60px; height: 60px; object-fit: cover;" class="rounded">
+                                {% else %}
+                                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                        <i class="fas fa-plane text-white"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">{{ related.name }}</h6>
+                                <p class="text-muted mb-1">${{ related.price }}</p>
+                                <a href="{% url 'bookings:package_detail' related.id %}" class="btn btn-sm btn-outline-primary">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

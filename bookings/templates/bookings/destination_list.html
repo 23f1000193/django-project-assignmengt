@@ -1,0 +1,66 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Destinations - TravelEase{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold mb-4">Explore Destinations</h1>
+                <p class="lead mb-4">Discover amazing places around the world</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Destinations Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2 class="fw-bold">All Destinations</h2>
+                <p class="text-muted">Browse through our collection of amazing destinations</p>
+            </div>
+        </div>
+        
+        {% if destinations %}
+        <div class="row">
+            {% for destination in destinations %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card package-card card-hover h-100">
+                    {% if destination.image %}
+                        <img src="{{ destination.image.url }}" class="card-img-top" alt="{{ destination.name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-map-marker-alt text-white" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ destination.name }}</h5>
+                        <p class="card-text text-muted">
+                            <i class="fas fa-map-marker-alt"></i> {{ destination.city }}, {{ destination.country }}
+                        </p>
+                        <p class="card-text">{{ destination.description|truncatewords:25 }}</p>
+                        
+                        <div class="d-grid">
+                            <a href="{% url 'bookings:destination_detail' destination.id %}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Explore Destination
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-map text-muted" style="font-size: 4rem;"></i>
+            <h3 class="mt-3">No destinations available</h3>
+            <p class="text-muted">Check back later for new destinations.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
